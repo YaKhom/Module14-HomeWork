@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Image Generator</title>
+    <style>
+      .container {
+        margin: 20px;
+      }
+      .error {
+        color: red;
+        margin-top: 10px;
+      }
+      .result {
+        margin-top: 20px;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="container">
+      <input type="text" id="width" placeholder="Введите ширину (100-300)" />
+      <input type="text" id="height" placeholder="Введите высоту (100-300)" />
+      <button id="submit">Получить изображение</button>
+      <div id="error" class="error"></div>
+      <div id="result" class="result"></div>
+    </div>
+
+    <script>
+      const widthInput = document.getElementById("width");
+      const heightInput = document.getElementById("height");
+      const submitButton = document.getElementById("submit");
+      const errorDiv = document.getElementById("error");
+      const resultDiv = document.getElementById("result");
+
+      submitButton.addEventListener("click", function () {
+        // Очищаем предыдущие результаты
+        errorDiv.textContent = "";
+        resultDiv.innerHTML = "";
+        // Получаем значения из input
+        const width = Number(widthInput.value);
+        const height = Number(heightInput.value);
+        // Проверяем валидность введенных данных
+        if (
+          isNaN(width) ||
+          isNaN(height) ||
+          width < 100 ||
+          width > 300 ||
+          height < 100 ||
+          height > 300
+        ) {
+          errorDiv.textContent = "Одно из чисел вне диапазона от 100 до 300";
+          return;
+        }
+        // Формируем URL
+        const url = `https://dummyimage.com/${width}x${height}/`;
+        // Делаем запрос
+        fetch(url)
+          .then((response) => {
+            // Создаем элемент изображения
+            const img = document.createElement("img");
+            img.src = url;
+            resultDiv.appendChild(img);
+          })
+          .catch((error) => {
+            errorDiv.textContent = "Ошибка при загрузке изображения";
+            console.error("Error:", error);
+          });
+      });
+    </script>
+  </body>
+</html>

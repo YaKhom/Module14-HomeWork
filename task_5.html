@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Photo Fetcher</title>
+    <style>
+      .container {
+        margin: 20px;
+      }
+      .input-group {
+        margin-bottom: 10px;
+      }
+      .error {
+        color: red;
+        margin-top: 10px;
+      }
+      .photos {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-top: 20px;
+      }
+      .photo-card {
+        border: 1px solid #ccc;
+        padding: 10px;
+        width: 200px;
+      }
+      img {
+        width: 150px;
+        height: 150px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="input-group">
+        <label>Номер страницы:</label>
+        <input type="number" id="pageNumber" />
+      </div>
+      <div class="input-group">
+        <label>Лимит:</label>
+        <input type="number" id="limit" />
+      </div>
+      <button onclick="makeRequest()">Запрос</button>
+      <div id="error" class="error"></div>
+      <div id="result" class="photos"></div>
+    </div>
+
+    <script>
+      function makeRequest() {
+        const pageNumber = document.getElementById("pageNumber").value;
+        const limit = document.getElementById("limit").value;
+        const errorDiv = document.getElementById("error");
+        const resultDiv = document.getElementById("result");
+
+        // Очищаем предыдущие результаты
+        errorDiv.textContent = "";
+        resultDiv.innerHTML = "";
+        // Проверяем валидность введенных данных
+        const isPageValid =
+          !isNaN(pageNumber) && pageNumber >= 1 && pageNumber <= 10;
+        const isLimitValid = !isNaN(limit) && limit >= 1 && limit <= 10;
+        if (!isPageValid && !isLimitValid) {
+          errorDiv.textContent =
+            "Номер страницы и лимит вне диапазона от 1 до 10";
+          return;
+        }
+        if (!isPageValid) {
+          errorDiv.textContent = "Номер страницы вне диапазона от 1 до 10";
+          return;
+        }
+        if (!isLimitValid) {
+          errorDiv.textContent = "Лимит вне диапазона от 1 до 10";
+          return;
+        }
+
+        // Выполняем запрос
+        fetch(
+          `https://jsonplaceholder.typicode.com/photos?_page=${pageNumber}&_limit=${limit}`
+        )
+          .then((response) => response.json())
+          .then((data) => {
+            data.forEach((photo) => {
+              const photoCard = document.createElement("div");
+              photoCard.className = "photo-card";
+              photoCard.innerHTML = `
+                            <img src="${photo.thumbnailUrl}" alt="${photo.title}">
+                            <p>${photo.title}</p>
+                        `;
+              resultDiv.appendChild(photoCard);
+            });
+          })
+          .catch((error) => {
+            errorDiv.textContent = "Ошибка при загрузке данных";
+            console.error("Error:", error);
+          });
+      }
+    </script>
+  </body>
+</html>

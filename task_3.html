@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>XHR Request Example</title>
+    <style>
+      .container {
+        margin: 20px;
+      }
+
+      .error {
+        color: red;
+        margin-top: 10px;
+      }
+
+      .result {
+        margin-top: 10px;
+      }
+
+      .photo-item {
+        margin-bottom: 10px;
+        padding: 10px;
+        border: 1px solid #ccc;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="container">
+      <input type="number" placeholder="Введите число от 1 до 10" />
+      <button onclick="makeRequest()">Отправить запрос</button>
+      <div id="output"></div>
+    </div>
+
+    <script>
+      function makeRequest() {
+        const value = document.querySelector("input").value;
+        const output = document.getElementById("output");
+        const number = parseInt(value);
+
+        // Очищаем предыдущий результат
+        output.innerHTML = "";
+
+        // Проверяем диапазон
+        if (number < 1 && number > 10 && isNaN(number)) {
+          output.innerHTML =
+            '<div class="error">Число вне диапазона от 1 до 10</div>';
+          return;
+        }
+
+        // Создаем XHR запрос
+        const xhr = new XMLHttpRequest();
+        const url = `https://jsonplaceholder.typicode.com/photos?_limit=${number}`;
+
+        xhr.open("GET", url, true);
+        xhr.onload = function () {
+          if (xhr.status === 200) {
+            const response = JSON.parse(xhr.responseText);
+            displayResults(response);
+          } else {
+            output.innerHTML =
+              '<div class="error">Ошибка при получении данных</div>';
+          }
+        };
+
+        xhr.onerror = function () {
+          output.innerHTML = '<div class="error">Ошибка сети</div>';
+        };
+        xhr.send();
+      }
+
+      function displayResults(data) {
+        const output = document.getElementById("output");
+        let html = '<div class="result">';
+        data.forEach((photo) => {
+          html += `
+                       <div class="photo-item">
+                           <h3>${photo.title}</h3>
+                           <img src="${photo.thumbnailUrl}" alt="Thumbnail">
+                           <p>ID: ${photo.id}</p>
+                       </div>
+                   `;
+        });
+        html += "</div>";
+        output.innerHTML = html;
+      }
+    </script>
+  </body>
+</html>
